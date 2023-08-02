@@ -1,0 +1,46 @@
+/* styles for the counter manager view component */
+
+.counter-manager-view {
+  padding: 20px;
+}
+
+.counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.dot.green {
+  background-color: green;
+}
+
+.dot.red {
+  background-color: red;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+input {
+  padding: 5px;
+  margin-top: 5px;
+}
