@@ -1,34 +1,60 @@
-import React, { useState } from 'react';
-import './styles/CustomerView.css';
+import React, { useState, useEffect } from 'react';
+import './styles/style.css';
 
-const CustomerView = ({ counters }) => {
-  const [ticketNumber, setTicketNumber] = useState(0);
-  const [lastNumber, setLastNumber] = useState(0);
+const CustomerView = ({ ticketNumber, counters, onTakeNumber, onUpdateCounterStatus }) => {
+  const [lastServedTicket, setLastServedTicket] = useState('None');
+  const [nowServingTicket, setNowServingTicket] = useState('None');
 
   const handleTakeNumber = () => {
-    const newTicketNumber = ticketNumber + 1;
-    setTicketNumber(newTicketNumber);
-    setLastNumber(newTicketNumber);
+    onTakeNumber();
   };
 
   const getLastServedTicket = () => {
-    const lastServed = Math.max(...counters.map((counter) => counter.currentTicket || 0));
-    return lastServed === 0 ? 'None' : lastServed;
+    const lastServed = Math.max(
+      ...counters.map((counter) => (counter.isServing ? parseInt(counter.servingNumber) : 0))
+    );
+    return lastServed === 0 ? 'None' : lastServed.toString().padStart(4, '0');
   };
+
+  useEffect(() => {
+    onUpdateCounterStatus(counters);
+
+    // Find the latest ticket that is now being served
+    const servingTickets = counters.filter((counter) => counter.isServing);
+    const latestServingTicket = Math.max(
+      ...servingTickets.map((counter) => parseInt(counter.servingNumber))
+    );
+    setNowServingTicket(latestServingTicket === -Infinity ? 'None' : latestServingTicket.toString().padStart(4, '0'));
+  }, [counters, onUpdateCounterStatus]);
+
+  useEffect(() => {
+  // Update the last served ticket whenever a new ticket is taken
+  setLastServedTicket(getLastServedTicket());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [counters, ticketNumber]);
 
   return (
     <div className="customer-view">
+       <h2>Customer View</h2>
       <div className="customer-section">
-        <h2>Customer View</h2>
+
+        <p>Now Serving: {nowServingTicket}</p>
+        <p>Last Number: {lastServedTicket}</p>
         <button onClick={handleTakeNumber}>Take a Number</button>
-        <p>Now Serving: {getLastServedTicket()}</p>
-        <p>Last Number: {lastNumber}</p>
       </div>
       <div className="counters-section">
         {counters.map((counter) => (
-          <div key={counter.id} className={`counter ${counter.status ? 'online' : 'offline'}`}>
-            <span className={`dot ${counter.status ? 'red' : 'green'}`} />
-            <span>{counter.status ? counter.currentTicket || 'Offline' : 'Offline'}</span>
+          <div
+            key={counter.id}
+            className={`counter ${counter.isOnline ? (counter.isServing ? 'red' : 'green') : 'gray'}`}
+            onClick={() => (counter.isServing ? null : handleTakeNumber())}
+          >
+            <div className={`dot ${counter.isServing ? 'red' : counter.isOnline ? 'green' : 'gray'}`} />
+            {counter.isServing ? (
+              <span>Currently Serving: {counter.servingNumber}</span>
+            ) : (
+              <span>Status: {counter.isOnline ? 'Online' : 'Offline'}</span>
+            )}
           </div>
         ))}
       </div>

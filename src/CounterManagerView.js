@@ -1,51 +1,33 @@
-import React, { useState } from 'react';
-import './styles/CounterManagerView.css';
+import React from 'react';
+import './styles/style.css';
 
-const CounterManagerView = ({ counters, setCounters }) => {
+const CounterManagerView = ({ counters, onServeNext, onToggleCounter }) => {
   const handleToggleStatus = (counterId) => {
-    setCounters((prevCounters) =>
-      prevCounters.map((counter) =>
-        counter.id === counterId
-          ? {
-              ...counter,
-              status: !counter.status,
-              currentTicket: !counter.status ? 'A001' : null, // Assign a default ticket number when toggling online
-            }
-          : counter
-      )
-    );
+    onToggleCounter(counterId);
   };
 
-  const handleAssignTicket = (counterId, ticketNumber) => {
-    setCounters((prevCounters) =>
-      prevCounters.map((counter) =>
-        counter.id === counterId ? { ...counter, currentTicket: ticketNumber } : counter
-      )
-    );
-  };
+
 
   return (
-    <div className="counter-manager-view">
-      <h2>Counter Manager View</h2>
-      <div className="counters">
-        {counters.map((counter) => (
-          <div key={counter.id} className={`counter ${counter.status ? 'online' : 'offline'}`}>
-            <span className={`dot ${counter.status ? 'red' : 'green'}`} />
-            <p>{counter.status ? counter.currentTicket || 'Offline' : 'Offline'}</p>
-            <div>
-              <button onClick={() => handleToggleStatus(counter.id)}>
-                {counter.status ? 'Offline' : 'Online'}
-              </button>
-              <input
-                type="text"
-                placeholder="Ticket Number"
-                value={counter.currentTicket || ''}
-                onChange={(e) => handleAssignTicket(counter.id, e.target.value)}
-                disabled={!counter.status}
-              />
+    <div className="counter-manager-view-container">
+      <div className="counter-manager-view">
+        <h2>Counter Manager View</h2>
+        <div className="counters">
+          {counters.map((counter) => (
+            <div
+              key={counter.id}
+              className={`counter ${counter.isOnline ? (counter.isServing ? 'red' : 'green') : 'gray'}`}
+              onClick={() => handleToggleStatus(counter.id)} // Always enable the click event
+            >
+               <div className={`dot ${counter.isServing ? 'red' : counter.isOnline ? 'green' : 'gray'}`} />
+              {counter.isServing ? (
+                <span>Currently Serving: {counter.servingNumber}</span>
+              ) : (
+                <span>Status: {counter.isOnline ? 'Online' : 'Offline'}</span>
+              )}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
